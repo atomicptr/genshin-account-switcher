@@ -10,7 +10,7 @@ You need to have Python 3.10+ installed.
 $ pip install genshin-account-switcher
 ```
 
-## Usage
+## CLI: Usage
 
 ### Registering an account:
 
@@ -24,7 +24,7 @@ Successfully registered account '999999999'.
 ```bash
 # No argument -> shows list of registered accounts
 $ genshin-account-switcher switch  
-usage: main.py switch [-h] [uid]
+usage: genshin-account-switcher switch [-h] [uid]
 
 positional arguments:
   uid

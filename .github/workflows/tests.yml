@@ -8,8 +8,8 @@ on:
       - synchronize
 
 jobs:
-  pylint:
-    name: pylint
+  tests:
+    name: tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,3 +23,9 @@ jobs:
           pip install pylint
       - name: Pylint
         run: pylint src
+      - name: Build
+        run: |
+          pip install wheel
+          make build
+          make install
+          which genshin-account-switcher

@@ -22,6 +22,7 @@ def main():
     if len(dirs) > 1:
         print("ERROR: More than one Genshin Installation was found,"
               "this is currently unsupported.\n* " + "\n* ".join(dirs))
+        sys.exit(1)
 
     config_dir = Path(user_config_dir("genshin-account-switcher"))
 
