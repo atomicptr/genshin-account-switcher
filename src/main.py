@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" CLI command to switch Genshin Impact Accounts """
+
 import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
@@ -10,11 +12,12 @@ from . import genshin
 
 
 def main():
+    """ Main function implementing the CLI command """
     dirs = genshin.find_installations()
 
     if len(dirs) == 0:
         print("ERROR: No Genshin Installation could be found.")
-        exit(1)
+        sys.exit(1)
 
     if len(dirs) > 1:
         print("ERROR: More than one Genshin Installation was found,"
@@ -48,16 +51,17 @@ def main():
     args = parser.parse_args(sys.argv[1:])
     if "func" not in args:
         parser.print_help()
-        exit(0)
+        sys.exit(0)
     args.func(args, config_dir)
 
 
 def register_command(_args: Namespace, config_dir: str):
+    """ The command responsible for registering accounts"""
     uid = genshin.get_uid()
 
     if uid is None:
         print("ERROR: Could not determine UID, did you log into the game yet?")
-        exit(1)
+        sys.exit(1)
 
     account_dir = Path(config_dir, "accounts", uid)
 
@@ -68,7 +72,7 @@ def register_command(_args: Namespace, config_dir: str):
 
     if user_reg_data is None:
         print("ERROR: Could not find user.reg, did you log into the game yet?")
-        exit(1)
+        sys.exit(1)
 
     user_reg_path = Path(account_dir, "user.reg")
     user_reg_path.write_bytes(user_reg_data)
@@ -77,6 +81,7 @@ def register_command(_args: Namespace, config_dir: str):
 
 
 def switch_command(args: Namespace, config_dir: str):
+    """ The command responsible for switching accounts"""
     uid = args.uid
 
     accounts_dir = Path(config_dir, "accounts")
@@ -90,7 +95,7 @@ def switch_command(args: Namespace, config_dir: str):
         if len(registered_account_paths) == 0:
             print("ERROR: Could not find any registered accounts, did you run"
                   "the register command already?")
-            exit(1)
+            sys.exit(1)
 
         args.cmd.print_help()
 
@@ -100,7 +105,7 @@ def switch_command(args: Namespace, config_dir: str):
             if not file.is_dir():
                 continue
             print(f"* [{index}] {file.name}")
-        exit(0)
+        sys.exit(0)
 
     # user probably picked an enumerated option
     if 0 <= uid < len(registered_account_paths):
@@ -115,13 +120,13 @@ def switch_command(args: Namespace, config_dir: str):
         print(f"ERROR: Unknown UID '{uid}', available options are:")
         for index, acc in enumerate(registered_accounts):
             print(f"* [{index}] {acc}")
-        exit(1)
+        sys.exit(1)
 
     user_reg_path = Path(accounts_dir, str(uid), "user.reg")
 
     if not user_reg_path.exists():
         print(f"ERROR: User Registry for '{uid}' did not exist.")
-        exit(1)
+        sys.exit(1)
 
     backup_current_account_if_possible(config_dir)
 
@@ -134,6 +139,7 @@ def switch_command(args: Namespace, config_dir: str):
 
 
 def backup_current_account_if_possible(config_dir: str) -> bool:
+    """ Backup the current account if there is one """
     uid = genshin.get_uid()
 
     if uid is None:

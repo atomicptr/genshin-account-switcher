@@ -1,12 +1,13 @@
+"""Module for finding and interacting with the Genshin Impact installation"""
+from os import getlogin
 from pathlib import Path
 from typing import List, Optional
-from os import getlogin
 
 _GENSHIN_LOCATIONS = [
     # Anime Game Launcher
-    f"~/.local/share/anime-game-launcher/game",
+    "~/.local/share/anime-game-launcher/game",
     # Anime Game Launcher GTK
-    f"~/.local/share/anime-game-launcher-gtk/game",
+    "~/.local/share/anime-game-launcher-gtk/game",
     # Anime Game Launcher GTK - Flatpak
     "~/.var/app/moe.launcher.an-anime-game-launcher-gtk/data/"
     "anime-game-launcher/game",
@@ -16,16 +17,18 @@ _GENSHIN_LOCATIONS = [
 ]
 
 _USER_REG_PATH = "user.reg"
-_UID_INFO_FILE = "drive_c/users/%s/AppData/LocalLow/miHoYo/Genshin Impact/UidInfo.txt"
+_UID_INFO_FILE = "drive_c/users/%s/AppData/LocalLow/miHoYo/" \
+                 "Genshin Impact/UidInfo.txt"
 
 
 def find_installations() -> List[str]:
+    """ Find Genshin Impact installations """
     dirs = []
     for location in _GENSHIN_LOCATIONS:
         location = Path(location).expanduser()
         if not location.exists():
             continue
-        dirs.append(location.__str__())
+        dirs.append(str(location))
     return dirs
 
 
@@ -39,6 +42,7 @@ def _get_install_dir() -> Optional[str]:
 
 
 def get_uid() -> Optional[str]:
+    """ Get the UID of the current installation """
     install_dir = _get_install_dir()
 
     if install_dir is None:
@@ -53,6 +57,7 @@ def get_uid() -> Optional[str]:
 
 
 def write_uid(uid: str) -> None:
+    """ Write a UID to the UidInfo.txt file """
     install_dir = _get_install_dir()
 
     if install_dir is None:
@@ -63,6 +68,7 @@ def write_uid(uid: str) -> None:
 
 
 def read_user_registry() -> Optional[bytes]:
+    """ Read the user registry """
     install_dir = _get_install_dir()
 
     if install_dir is None:
@@ -77,6 +83,7 @@ def read_user_registry() -> Optional[bytes]:
 
 
 def write_user_registry(data: bytes) -> None:
+    """ Write the user registry """
     install_dir = _get_install_dir()
 
     if install_dir is None:
@@ -84,4 +91,3 @@ def write_user_registry(data: bytes) -> None:
 
     user_reg_path = Path(install_dir, _USER_REG_PATH)
     user_reg_path.write_bytes(data)
-

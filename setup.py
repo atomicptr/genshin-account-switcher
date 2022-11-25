@@ -15,7 +15,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/atomicptr/genshin-account-switcher",
     install_requires=[
-        "appdirs==1.4.4",
+        "appdirs==1.4.4",  # TODO: create this from requirements.txt
     ],
     python_requires=">3.10",
     classifiers=[
