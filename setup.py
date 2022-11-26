@@ -18,7 +18,7 @@ setuptools.setup(
     install_requires=[
         "appdirs==1.4.4",  # TODO: create this from requirements.txt
     ],
-    packages=["src"],
+    packages=["src", "src/genshin"],
     python_requires=">=3.10",
     classifiers=[
         "Topic :: Games/Entertainment",

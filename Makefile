@@ -9,5 +9,5 @@ install: build
 clean:
 	rm -rf build dist genshin_account_switcher.egg-info
 
-upload: build
+upload: clean build
 	python -m twine upload dist/genshin_account_switcher-*.whl
