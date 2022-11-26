@@ -8,7 +8,10 @@ from pathlib import Path
 
 from appdirs import user_config_dir
 
-from . import genshin
+try:
+    from . import genshin
+except ImportError:
+    import genshin
 
 
 def main():
@@ -48,6 +51,12 @@ def main():
     )
     parser_switch.add_argument("uid", nargs="?", type=int, default=None)
     parser_switch.set_defaults(func=switch_command, cmd=parser_switch)
+
+    parser_current = subparsers.add_parser(
+        "current",
+        help="Show current account",
+    )
+    parser_current.set_defaults(func=current_command)
 
     args = parser.parse_args(sys.argv[1:])
     if "func" not in args:
@@ -105,7 +114,8 @@ def switch_command(args: Namespace, config_dir: str):
         for index, file in enumerate(registered_account_paths):
             if not file.is_dir():
                 continue
-            print(f"* [{index}] {file.name}")
+            check = " ✔️" if file.name == str(genshin.get_uid()) else ""
+            print(f"* [{index}] {file.name}{check}")
         sys.exit(0)
 
     # user probably picked an enumerated option
@@ -137,6 +147,17 @@ def switch_command(args: Namespace, config_dir: str):
     genshin.write_user_registry(user_reg_data)
 
     print(f"Successfully switched to account '{uid}'")
+
+
+def current_command(_args: Namespace, _config_dir: str):
+    """ Shows your currently selected uid """
+    uid = genshin.get_uid()
+
+    if uid is None:
+        print("No account could be found, have you logged into the game yet?")
+        sys.exit(0)
+
+    print(f"Currently selected account: '{uid}'")
 
 
 def backup_current_account_if_possible(config_dir: str) -> bool:
