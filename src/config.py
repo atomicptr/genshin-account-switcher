@@ -25,7 +25,7 @@ def get_config_directory() -> Path:
 
 def get_account_directory(uid: str) -> Path:
     """ Get the account config directory """
-    return Path(get_config_directory(), "accounts", uid)
+    return Path(get_config_directory(), "accounts", str(uid))
 
 
 def get_account_config(uid: str) -> Optional[AccountConfiguration]:
@@ -73,3 +73,19 @@ def is_account_registered(uid: str) -> bool:
     """ Is there an account registered under this uid? """
     account_dir = get_account_directory(uid)
     return account_dir.exists()
+
+
+def set_user_registry(uid: str, data: bytes) -> None:
+    """ Set configuration user registry data """
+    user_reg_path = Path(get_account_directory(str(uid)), "user.reg")
+    if not user_reg_path.parent.exists():
+        user_reg_path.parent.mkdir(parents=True)
+    user_reg_path.write_bytes(data)
+
+
+def get_user_registry(uid: str) -> Optional[bytes]:
+    """ Read the user registry data stored inside the configuration dir """
+    user_reg_path = Path(get_account_directory(str(uid)), "user.reg")
+    if not user_reg_path.exists():
+        return None
+    return user_reg_path.read_bytes()

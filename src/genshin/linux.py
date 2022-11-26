@@ -1,4 +1,5 @@
-"""Module for finding and interacting with the Genshin Impact installation"""
+"""Module for finding and interacting with the Linux Genshin Impact
+installation"""
 from os import getlogin
 from pathlib import Path
 from typing import List, Optional

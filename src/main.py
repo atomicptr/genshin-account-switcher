@@ -81,19 +81,14 @@ def register_command(args: Namespace):
         print("ERROR: Could not determine UID, did you log into the game yet?")
         sys.exit(1)
 
-    account_dir = config.get_account_directory(uid)
-
-    if not account_dir.exists():
-        account_dir.mkdir(parents=True)
-
     user_reg_data = genshin.read_user_registry()
 
     if user_reg_data is None:
-        print("ERROR: Could not find user.reg, did you log into the game yet?")
+        print("ERROR: Could not read registry entry, "
+              "did you log into the game yet?")
         sys.exit(1)
 
-    user_reg_path = Path(account_dir, "user.reg")
-    user_reg_path.write_bytes(user_reg_data)
+    config.set_user_registry(uid, user_reg_data)
 
     if args.name is not None:
         config.set_account_name(uid, args.name)
@@ -148,15 +143,13 @@ def switch_command(args: Namespace):
                   f"{check_if_selected(str(acc))}")
         sys.exit(1)
 
-    user_reg_path = Path(config.get_account_directory(str(uid)), "user.reg")
+    user_reg_data = config.get_user_registry(uid)
 
-    if not user_reg_path.exists():
-        print(f"ERROR: User Registry for {format_uid(uid)} did not exist.")
+    if user_reg_data is None:
+        print(f"ERROR: User Registry for {format_uid(uid)} does not exist.")
         sys.exit(1)
 
     backup_current_account_if_possible()
-
-    user_reg_data = user_reg_path.read_bytes()
 
     genshin.write_uid(uid)
     genshin.write_user_registry(user_reg_data)
@@ -182,18 +175,12 @@ def backup_current_account_if_possible() -> bool:
     if uid is None:
         return False
 
-    account_dir = config.get_account_directory(uid)
-
-    if not account_dir.exists():
-        account_dir.mkdir(parents=True)
-
     user_reg_data = genshin.read_user_registry()
 
     if user_reg_data is None:
         return False
 
-    user_reg_path = Path(account_dir, "user.reg")
-    user_reg_path.write_bytes(user_reg_data)
+    config.set_user_registry(uid, user_reg_data)
     return True
 
 
