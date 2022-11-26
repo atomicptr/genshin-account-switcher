@@ -6,12 +6,11 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from appdirs import user_config_dir
-
 try:
-    from . import genshin
+    from . import genshin, config
 except ImportError:
     import genshin
+    import config
 
 
 def main():
@@ -27,7 +26,7 @@ def main():
               "this is currently unsupported.\n* " + "\n* ".join(dirs))
         sys.exit(1)
 
-    config_dir = Path(user_config_dir("genshin-account-switcher"))
+    config_dir = config.get_config_directory()
 
     if not config_dir.exists():
         config_dir.mkdir()
@@ -43,6 +42,7 @@ def main():
         "register",
         help="Register a new Genshin account",
     )
+    parser_register.add_argument("--name", "-n", type=str, default=None)
     parser_register.set_defaults(func=register_command)
 
     parser_switch = subparsers.add_parser(
@@ -58,14 +58,22 @@ def main():
     )
     parser_current.set_defaults(func=current_command)
 
+    parser_setname = subparsers.add_parser(
+        "set-name",
+        help="Set the name for an account"
+    )
+    parser_setname.add_argument("uid", type=int)
+    parser_setname.add_argument("name", type=str)
+    parser_setname.set_defaults(func=setname_command)
+
     args = parser.parse_args(sys.argv[1:])
     if "func" not in args:
         parser.print_help()
         sys.exit(0)
-    args.func(args, config_dir)
+    args.func(args)
 
 
-def register_command(_args: Namespace, config_dir: str):
+def register_command(args: Namespace):
     """ The command responsible for registering accounts"""
     uid = genshin.get_uid()
 
@@ -73,7 +81,7 @@ def register_command(_args: Namespace, config_dir: str):
         print("ERROR: Could not determine UID, did you log into the game yet?")
         sys.exit(1)
 
-    account_dir = Path(config_dir, "accounts", uid)
+    account_dir = config.get_account_directory(uid)
 
     if not account_dir.exists():
         account_dir.mkdir(parents=True)
@@ -87,14 +95,20 @@ def register_command(_args: Namespace, config_dir: str):
     user_reg_path = Path(account_dir, "user.reg")
     user_reg_path.write_bytes(user_reg_data)
 
+    if args.name is not None:
+        config.set_account_name(uid, args.name)
+        print(f"Successfully registered account '{uid}' under the8"
+              f" name '{args.name}'.")
+        sys.exit(0)
+
     print(f"Successfully registered account '{uid}'.")
 
 
-def switch_command(args: Namespace, config_dir: str):
+def switch_command(args: Namespace):
     """ The command responsible for switching accounts"""
     uid = args.uid
 
-    accounts_dir = Path(config_dir, "accounts")
+    accounts_dir = Path(config.get_config_directory(), "accounts")
 
     if not accounts_dir.exists():
         accounts_dir.mkdir()
@@ -114,8 +128,8 @@ def switch_command(args: Namespace, config_dir: str):
         for index, file in enumerate(registered_account_paths):
             if not file.is_dir():
                 continue
-            check = " ✔️" if file.name == str(genshin.get_uid()) else ""
-            print(f"* [{index}] {file.name}{check}")
+            uid = file.name
+            print(f"* [{index}] {format_uid(uid)} {check_if_selected(uid)}")
         sys.exit(0)
 
     # user probably picked an enumerated option
@@ -130,26 +144,27 @@ def switch_command(args: Namespace, config_dir: str):
     if uid not in registered_accounts:
         print(f"ERROR: Unknown UID '{uid}', available options are:")
         for index, acc in enumerate(registered_accounts):
-            print(f"* [{index}] {acc}")
+            print(f"* [{index}] {format_uid(str(acc))} "
+                  f"{check_if_selected(str(acc))}")
         sys.exit(1)
 
-    user_reg_path = Path(accounts_dir, str(uid), "user.reg")
+    user_reg_path = Path(config.get_account_directory(str(uid)), "user.reg")
 
     if not user_reg_path.exists():
-        print(f"ERROR: User Registry for '{uid}' did not exist.")
+        print(f"ERROR: User Registry for {format_uid(uid)} did not exist.")
         sys.exit(1)
 
-    backup_current_account_if_possible(config_dir)
+    backup_current_account_if_possible()
 
     user_reg_data = user_reg_path.read_bytes()
 
     genshin.write_uid(uid)
     genshin.write_user_registry(user_reg_data)
 
-    print(f"Successfully switched to account '{uid}'")
+    print(f"Successfully switched to account {format_uid(uid)}")
 
 
-def current_command(_args: Namespace, _config_dir: str):
+def current_command(_args: Namespace):
     """ Shows your currently selected uid """
     uid = genshin.get_uid()
 
@@ -157,17 +172,17 @@ def current_command(_args: Namespace, _config_dir: str):
         print("No account could be found, have you logged into the game yet?")
         sys.exit(0)
 
-    print(f"Currently selected account: '{uid}'")
+    print(f"Currently selected account: {format_uid(uid)}")
 
 
-def backup_current_account_if_possible(config_dir: str) -> bool:
+def backup_current_account_if_possible() -> bool:
     """ Backup the current account if there is one """
     uid = genshin.get_uid()
 
     if uid is None:
         return False
 
-    account_dir = Path(config_dir, "accounts", uid)
+    account_dir = config.get_account_directory(uid)
 
     if not account_dir.exists():
         account_dir.mkdir(parents=True)
@@ -180,6 +195,29 @@ def backup_current_account_if_possible(config_dir: str) -> bool:
     user_reg_path = Path(account_dir, "user.reg")
     user_reg_path.write_bytes(user_reg_data)
     return True
+
+
+def setname_command(args: Namespace):
+    """ Allows you to set account alias names via CLI """
+    if not config.is_account_registered(str(args.uid)):
+        print(f"ERROR: Unknown account uid '{args.uid}', "
+              "did you already register it?")
+        sys.exit(1)
+    config.set_account_name(str(args.uid), args.name)
+    print(f"Successfully saved {format_uid(str(args.uid))}")
+
+
+def format_uid(uid: str) -> str:
+    """ Displays the account name if available otherwise just the uid"""
+    name = config.get_account_name(uid)
+    if name is None:
+        return f"'{uid}'"
+    return f"{name} ({uid})"
+
+
+def check_if_selected(uid: str) -> str:
+    """ Renders a check if the uid is selected right now """
+    return "✔️" if uid == str(genshin.get_uid()) else ""
 
 
 if __name__ == "__main__":
