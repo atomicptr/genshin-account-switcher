@@ -2,7 +2,7 @@
 import json
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from appdirs import user_config_dir
 
@@ -89,3 +89,27 @@ def get_user_registry(uid: str) -> Optional[bytes]:
     if not user_reg_path.exists():
         return None
     return user_reg_path.read_bytes()
+
+
+def get_registered_account_paths() -> List[str]:
+    """ Get paths of registered accounts """
+    accounts_dir = Path(get_config_directory(), "accounts")
+
+    if not accounts_dir.exists():
+        accounts_dir.mkdir()
+
+    return list(map(
+        str,
+        filter(
+            lambda path: path.is_dir(),
+            accounts_dir.glob("*")
+        )
+    ))
+
+
+def get_registered_accounts() -> List[str]:
+    """ Get list of registered account uids """
+    return list(map(
+        lambda path: Path(path).name,
+        get_registered_account_paths(),
+    ))
