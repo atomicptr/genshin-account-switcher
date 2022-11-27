@@ -25,7 +25,7 @@ jobs:
       - name: Pylint
         run: pylint src
       - name: Pytest
-        run: pytest
+        run: python -m pytest
       - name: Build
         run: |
           pip install wheel
