@@ -21,8 +21,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pylint
+          pip install pytest
       - name: Pylint
         run: pylint src
+      - name: Pytest
+        run: pytest
       - name: Build
         run: |
           pip install wheel
