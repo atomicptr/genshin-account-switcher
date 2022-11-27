@@ -1,7 +1,7 @@
 import shutil
 import tempfile
 import time
-from os import getlogin
+from getpass import getuser
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,7 +22,7 @@ def genshin_installation():
         _test_location.mkdir(parents=True)
 
     Path(_test_location, "user.reg").write_text("This is the users registry")
-    uid_file = Path(_test_location, _uid_file % getlogin())
+    uid_file = Path(_test_location, _uid_file % getuser())
     uid_file.parent.mkdir(parents=True)
     uid_file.write_text("999999999\n", encoding="utf8")
 

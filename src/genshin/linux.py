@@ -1,6 +1,6 @@
 """Module for finding and interacting with the Linux Genshin Impact
 installation"""
-from os import getlogin
+from getpass import getuser
 from pathlib import Path
 from typing import List, Optional
 
@@ -49,7 +49,7 @@ def get_uid() -> Optional[str]:
     if install_dir is None:
         return None
 
-    uid_path = Path(install_dir, _UID_INFO_FILE % getlogin())
+    uid_path = Path(install_dir, _UID_INFO_FILE % _get_username())
 
     if not uid_path.exists():
         return None
@@ -64,7 +64,7 @@ def write_uid(uid: str) -> None:
     if install_dir is None:
         return
 
-    uid_path = Path(install_dir, _UID_INFO_FILE % getlogin())
+    uid_path = Path(install_dir, _UID_INFO_FILE % _get_username())
     uid_path.write_text(f"{uid}\n", encoding="utf8")
 
 
@@ -92,3 +92,7 @@ def write_user_registry(data: bytes) -> None:
 
     user_reg_path = Path(install_dir, _USER_REG_PATH)
     user_reg_path.write_bytes(data)
+
+
+def _get_username() -> str:
+    return getuser()
