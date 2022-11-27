@@ -5,13 +5,13 @@ with open("README.md", "r") as file:
 
 setuptools.setup(
     name="genshin-account-switcher",
-    version="1.2.0",
+    version="1.2.1",
     entry_points={
         "console_scripts": ["genshin-account-switcher=src.main:main"]
     },
     author="Christopher Kaster",
     author_email="me@atomicptr.de",
-    description="CLI based account switcher for Genshin Impact on Linux.",
+    description="Simple account switcher for Genshin Impact on Linux.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/atomicptr/genshin-account-switcher",

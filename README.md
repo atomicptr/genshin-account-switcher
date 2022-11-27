@@ -1,6 +1,6 @@
 # genshin-account-switcher
 
-Simple CLI based account switcher for Genshin Impact on Linux.
+Simple account switcher for Genshin Impact on Linux.
 
 ## Installation
 
@@ -70,6 +70,16 @@ Available UIDs:
 $ genshin-account-switcher set-name 999999999 "Alt Account"
 Successfully saved Alt Account (999999999)
 ```
+
+## GUI: Usage
+
+You can open a graphical user interface by executing the "gui" sub command:
+
+```bash
+$ genshin-account-switcher gui
+```
+
+![](.github/screenshot.png)
 
 ## License
 
