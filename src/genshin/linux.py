@@ -6,15 +6,9 @@ from typing import List, Optional
 
 _GENSHIN_LOCATIONS = [
     # Anime Game Launcher
-    "~/.local/share/anime-game-launcher/game",
-    # Anime Game Launcher GTK
-    "~/.local/share/anime-game-launcher-gtk/game",
-    # Anime Game Launcher GTK - Flatpak
-    "~/.var/app/moe.launcher.an-anime-game-launcher-gtk/data/"
-    "anime-game-launcher/game",
+    "~/.local/share/anime-game-launcher/Genshin Impact",
     # Anime Game Launcher - Flatpak
-    "~/.var/app/com.gitlab.KRypt0n_.an-anime-game-launcher/data/"
-    "anime-game-launcher/game",
+    "~/.var/app/moe.launcher.an-anime-game-launcher/data/anime-game-launcher/Genshin Impact",
 ]
 
 _USER_REG_PATH = "user.reg"

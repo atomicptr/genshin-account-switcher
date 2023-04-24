@@ -5,7 +5,7 @@ with open("README.md", "r") as file:
 
 setuptools.setup(
     name="genshin-account-switcher",
-    version="1.2.1",
+    version="1.2.2",
     entry_points={
         "console_scripts": ["genshin-account-switcher=src.main:main"]
     },
